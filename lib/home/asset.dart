@@ -1,10 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+class AssetModel extends ChangeNotifier {
+  String _mainBankBalance = '7,000,000';
+
+  String get mainBankBalance => _mainBankBalance;
+
+  void updateMainBankBalance(String newBalance) {
+    _mainBankBalance = newBalance;
+    notifyListeners();
+  }
+}
 
 class AssetDetailPage extends StatelessWidget {
   const AssetDetailPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final assetModel = Provider.of<AssetModel>(context); // AssetModel 인스턴스 가져오기
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('자산', style: TextStyle(fontWeight: FontWeight.bold)),
@@ -21,10 +35,10 @@ class AssetDetailPage extends StatelessWidget {
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(8.0),
               ),
-              child: const Row(
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
+                  const Text(
                     '심재현 님의 순자산',
                     style: TextStyle(
                         fontSize: 22,
@@ -32,8 +46,8 @@ class AssetDetailPage extends StatelessWidget {
                         color: Colors.black),
                   ),
                   Text(
-                    '1,000,000원',
-                    style: TextStyle(
+                    '${assetModel.mainBankBalance}원', // Provider를 통해 잔액 표시
+                    style: const TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
                         color: Colors.black),
