@@ -1,10 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'home/asset.dart';
 import 'home/ledger.dart';
 import 'home/goals.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AssetModel()),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -25,6 +33,8 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final assetModel = Provider.of<AssetModel>(context);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('홈', style: TextStyle(fontWeight: FontWeight.bold)),
@@ -88,15 +98,15 @@ class HomePage extends StatelessWidget {
                             Expanded(
                               child: Container(
                                 padding: const EdgeInsets.all(8.0),
-                                child: const Column(
+                                child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      '300,000원',
-                                      style: TextStyle(fontSize: 16),
+                                      '${assetModel.mainBankBalance}원',
+                                      style: const TextStyle(fontSize: 16),
                                     ),
-                                    SizedBox(height: 4),
-                                    Text(
+                                    const SizedBox(height: 4),
+                                    const Text(
                                       '주거래 은행',
                                       style: TextStyle(
                                           fontSize: 12, color: Colors.grey),
