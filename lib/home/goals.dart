@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../budget_provider.dart';
 
 class GoalsDetailPage extends StatelessWidget {
   const GoalsDetailPage({super.key});
@@ -16,88 +18,28 @@ class GoalsDetailPage extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: ListView(
           children: [
-            // 예산 계획 섹션
-            _buildBudgetPlanSection(),
+            // 예산 계획
+            _buildBudgetPlanSection(context),
             const SizedBox(height: 16),
 
-            // 저축 목표 섹션
-            _buildSavingsGoalSection(),
+            // 저축 목표
+            _buildSavingsGoalSection(context),
             const SizedBox(height: 16),
 
-            // 분석 및 피드백 섹션
+            // 분석 및 피드백
             _buildAnalysisFeedbackSection(),
             const SizedBox(height: 16),
 
-            // 재무 습관 개선 팁 섹션
+            // 재무 습관 개선 팁
             _buildFinancialTipsSection(),
+            const SizedBox(height: 16),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildBudgetPlanSection() {
-    return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            const Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                '예산 계획',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-            ),
-            const SizedBox(height: 8),
-            _buildBudgetInputField('식비'),
-            _buildBudgetInputField('교통비'),
-            _buildBudgetInputField('엔터테인먼트'),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildBudgetInputField(String category) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              category,
-              style: const TextStyle(fontSize: 20),
-            ),
-          ),
-          const SizedBox(width: 8),
-          const Expanded(
-            child: TextField(
-              decoration: InputDecoration(
-                labelText: '예산 금액',
-                prefixText: '₩ ',
-                border: OutlineInputBorder(),
-                labelStyle: TextStyle(),
-                enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(),
-                ),
-              ),
-              style: TextStyle(),
-              keyboardType: TextInputType.number,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSavingsGoalSection() {
+  Widget _buildSavingsGoalSection(BuildContext context) {
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8),
@@ -119,15 +61,7 @@ class GoalsDetailPage extends StatelessWidget {
                 labelText: '목표 금액',
                 prefixText: '₩ ',
                 border: OutlineInputBorder(),
-                labelStyle: TextStyle(),
-                enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(),
-                ),
               ),
-              style: TextStyle(),
               keyboardType: TextInputType.number,
             ),
             Row(
@@ -135,9 +69,81 @@ class GoalsDetailPage extends StatelessWidget {
               children: [
                 TextButton(
                   onPressed: () {
-                    // 목표 설정 기능
+                    // 목표 설정 기능 추가
                   },
                   child: const Text('목표 설정'),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBudgetPlanSection(BuildContext context) {
+    final budgetProvider = Provider.of<BudgetProvider>(context);
+
+    return Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            const Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                '예산 계획',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Column(
+              children: budgetProvider.budgets.entries
+                  .map((entry) => Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                entry.key,
+                                style: const TextStyle(fontSize: 20),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: TextFormField(
+                                initialValue: entry.value.toString(),
+                                decoration: const InputDecoration(
+                                  labelText: '예산 금액',
+                                  prefixText: '₩ ',
+                                  border: OutlineInputBorder(),
+                                ),
+                                keyboardType: TextInputType.number,
+                                onChanged: (value) {
+                                  final amount = double.tryParse(value) ?? 0;
+                                  budgetProvider.addBudget(entry.key, amount);
+                                },
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.delete),
+                              onPressed: () =>
+                                  budgetProvider.removeCategory(entry.key),
+                            ),
+                          ],
+                        ),
+                      ))
+                  .toList(),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                TextButton(
+                  onPressed: () => _showAddCategoryDialog(context),
+                  child: const Text('예산 계획 추가'),
                 ),
               ],
             ),
@@ -188,12 +194,59 @@ class GoalsDetailPage extends StatelessWidget {
             ),
             SizedBox(height: 8),
             Text(
-              '1. 식사 계획을 세우세요. \n2. 대중교통을 활용하세요. \n3. 불필요한 소비를 줄이세요.',
+              '1. 식사 계획을 세우세요.\n2. 대중교통을 활용하세요.\n3. 불필요한 소비를 줄이세요.',
               style: TextStyle(fontSize: 16),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  void _showAddCategoryDialog(BuildContext context) {
+    final categoryController = TextEditingController();
+    final budgetController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('예산 계획 추가'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: categoryController,
+                decoration: const InputDecoration(labelText: '카테고리 이름(예: 식비)'),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: budgetController,
+                decoration: const InputDecoration(labelText: '예산 금액'),
+                keyboardType: TextInputType.number,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('취소'),
+            ),
+            TextButton(
+              onPressed: () {
+                final category = categoryController.text.trim();
+                final amount = double.tryParse(budgetController.text) ?? 0;
+                if (category.isNotEmpty) {
+                  Provider.of<BudgetProvider>(context, listen: false)
+                      .addBudget(category, amount);
+                  Navigator.of(context).pop();
+                }
+              },
+              child: const Text('추가'),
+            ),
+          ],
+        );
+      },
     );
   }
 }
