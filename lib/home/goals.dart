@@ -40,6 +40,13 @@ class GoalsDetailPage extends StatelessWidget {
   }
 
   Widget _buildSavingsGoalSection(BuildContext context) {
+    final budgetProvider = Provider.of<BudgetProvider>(context);
+    final TextEditingController goalController = TextEditingController(
+      text: budgetProvider.savingsGoal > 0
+          ? budgetProvider.savingsGoal.toStringAsFixed(0)
+          : '',
+    );
+
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8),
@@ -47,29 +54,32 @@ class GoalsDetailPage extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                '저축 목표',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
+            const Text(
+              '저축 목표',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            const TextField(
-              decoration: InputDecoration(
-                labelText: '목표 금액',
+            TextField(
+              controller: goalController,
+              decoration: const InputDecoration(
+                labelText: '목표 금액 입력',
                 prefixText: '₩ ',
                 border: OutlineInputBorder(),
               ),
               keyboardType: TextInputType.number,
             ),
+            const SizedBox(height: 8),
             Row(
-              mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 TextButton(
                   onPressed: () {
-                    // 목표 설정 기능 추가
+                    final enteredValue =
+                        double.tryParse(goalController.text) ?? 0.0;
+                    if (enteredValue > 0) {
+                      budgetProvider.setSavingsGoal(enteredValue);
+                    }
                   },
                   child: const Text('목표 설정'),
                 ),
