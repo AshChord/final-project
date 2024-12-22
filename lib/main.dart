@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart'; // url_launcher 패키지 임포트
+import 'package:flutter/gestures.dart'; // TapGestureRecognizer 임포트
 import 'budget_provider.dart';
 import 'home/asset.dart';
 import 'home/ledger.dart';
@@ -315,9 +317,55 @@ class HomePage extends StatelessWidget {
         ],
         currentIndex: 0,
         onTap: (index) {
-          // 네비게이션 바 항목 클릭 시 이동 기능
+          if (index == 1) {
+            _showFinancialProductDialog(context);
+          }
+          // 다른 인덱스에 대한 처리 추가 가능
         },
       ),
+    );
+  }
+
+  void _showFinancialProductDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('금융 상품 소개'),
+          content: RichText(
+            text: TextSpan(
+              children: [
+                const TextSpan(
+                  text: '아래 웹사이트에서 다양한 금융 상품에 대한 소개를 제공합니다.\n\n',
+                  style: TextStyle(color: Colors.white),
+                ),
+                TextSpan(
+                  text: '보기',
+                  style: const TextStyle(
+                      color: Colors.blue, fontWeight: FontWeight.bold),
+                  recognizer: TapGestureRecognizer()
+                    ..onTap = () async {
+                      const url = 'https://www.example.com'; // 링크를 여기에 입력
+                      if (await canLaunch(url)) {
+                        await launch(url);
+                      } else {
+                        throw 'Could not launch $url';
+                      }
+                    },
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // 다이얼로그 닫기
+              },
+              child: const Text('닫기'),
+            ),
+          ],
+        );
+      },
     );
   }
 }
