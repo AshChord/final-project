@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart'; // url_launcher 패키지 임포트
 import 'package:flutter/gestures.dart'; // TapGestureRecognizer 임포트
 import 'budget_provider.dart';
+import 'ledger_provider.dart';
 import 'home/asset.dart';
 import 'home/ledger.dart';
 import 'home/goals.dart';
@@ -13,6 +14,7 @@ void main() {
       providers: [
         ChangeNotifierProvider(create: (_) => AssetModel()),
         ChangeNotifierProvider(create: (_) => BudgetProvider()),
+        ChangeNotifierProvider(create: (_) => LedgerProvider()),
       ],
       child: const MyApp(),
     ),
