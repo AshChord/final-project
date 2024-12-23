@@ -341,7 +341,7 @@ class HomePage extends StatelessWidget {
                       color: Colors.blue, fontWeight: FontWeight.bold),
                   recognizer: TapGestureRecognizer()
                     ..onTap = () async {
-                      const url = 'https://www.example.com'; // 링크를 여기에 입력
+                      const url = 'https://finlife.fss.or.kr/finlife/main/main.do?menuNo=700000'; // 링크를 여기에 입력
                       if (await canLaunch(url)) {
                         await launch(url);
                       } else {
